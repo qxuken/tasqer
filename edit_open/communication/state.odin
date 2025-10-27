@@ -11,18 +11,18 @@ import zmq "edit_open:zeromq"
 HEARTBEAT_TIMEOUT :: time.Second * 2
 HEARTBEAT_INTERVAL :: HEARTBEAT_TIMEOUT / 2
 HEARTBEAT_INTERVAL_MS := cast(c.long)time.duration_milliseconds(HEARTBEAT_INTERVAL)
-POLL_INTERVAL :: HEARTBEAT_INTERVAL / 2
+POLL_INTERVAL :: HEARTBEAT_INTERVAL
 
 Leader :: struct {
     publisher_socket: ^zmq.Socket,
-    reply_socket:     ^zmq.Socket,
+    pull_socket:      ^zmq.Socket,
     poller:           ^zmq.Poller,
     last_sent:        time.Time,
 }
 
 Follower :: struct {
     subscriber_socket: ^zmq.Socket,
-    request_socket:    ^zmq.Socket,
+    push_socket:       ^zmq.Socket,
     poller:            ^zmq.Poller,
     last_seen_leader:  time.Time,
     rand_offset:       time.Duration,
@@ -34,9 +34,10 @@ Role :: union {
 }
 
 CommunucationState :: struct {
+    id:          [36]u8,
     zmq_context: ^zmq.Context,
     role:        Role,
-    id:          [36]u8,
+    quit:        bool,
 }
 
 new_state :: proc() -> (res: CommunucationState) {
@@ -56,7 +57,7 @@ udpate_role :: proc(state: ^CommunucationState, role: Role) {
     state.role = role
     #partial switch &v in state.role {
     case Follower:
-        v.rand_offset = time.Millisecond * cast(time.Duration)(time.duration_milliseconds(HEARTBEAT_INTERVAL) * rand.float64_range(0, 1))
+        v.rand_offset = time.Millisecond * cast(time.Duration)(time.duration_milliseconds(HEARTBEAT_INTERVAL) * rand.float64_range(0, 2))
         v.last_seen_leader = time.now()
     }
 }
@@ -66,16 +67,16 @@ destroy_role :: proc(role: Role) {
     switch &v in role {
     case Leader:
         if v.publisher_socket != nil do zmq.close(v.publisher_socket)
-        if v.reply_socket != nil do zmq.close(v.reply_socket)
+        if v.pull_socket != nil do zmq.close(v.pull_socket)
         if v.poller != nil do zmq.poller_destroy(&v.poller)
         v.publisher_socket = nil
-        v.reply_socket = nil
+        v.pull_socket = nil
     case Follower:
         if v.subscriber_socket != nil do zmq.close(v.subscriber_socket)
-        if v.request_socket != nil do zmq.close(v.request_socket)
+        if v.push_socket != nil do zmq.close(v.push_socket)
         if v.poller != nil do zmq.poller_destroy(&v.poller)
         v.subscriber_socket = nil
-        v.request_socket = nil
+        v.push_socket = nil
     }
 }
 
