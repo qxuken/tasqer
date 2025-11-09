@@ -1,1 +1,1 @@
-C:\Users\21asg\projects\edit_open\target\debug\edit_open.exe: C:\Users\21asg\projects\edit_open\src\main.rs
+/Users/qxuken/projects/edit_open/rust/target/debug/edit_open: /Users/qxuken/projects/edit_open/rust/src/main.rs
