@@ -1,4 +1,4 @@
-local G = require("lib.G")
+local G = require("lua.G")
 
 local M = {}
 

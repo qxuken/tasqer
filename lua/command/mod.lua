@@ -1,16 +1,37 @@
-local logger = require("lib.logger")
-local frame = require("lib.command.frame")
-local encode = require("lib.command.encode")
+local logger = require("lua.logger")
+local frame = require("lua.command.frame")
+local encode = require("lua.command.encode")
 
 local M = {}
 
 M.id = {
+	-- purpose: Pings issued by client to check if leader is alive.
+	-- from: @follower
+	-- to: @leader
 	ping = 0x01,
+	-- purpose: Pin response from leader to follower.
+	-- from: @leader
+	-- to: @follower
 	pong = 0x02,
-	open_task = 0x03,
-	open_request = 0x04,
+	-- purpose: Request from outside world to open file.
+	-- from: any
+	-- to: @leader
+	open_request = 0x03,
+	-- purpose: Request from leader to open file.
+	-- from: @leader
+	-- to: @follower
+	open_task = 0x04,
+	-- purpose: Follower confirms that it can open file.
+	-- from: @follower
+	-- to: @leader
 	open_possible = 0x05,
+	-- purpose: Leader grants permission to complete the task.
+	-- from: @leader
+	-- to: @follower
 	open_granted = 0x06,
+	-- purpose: Leader denies permission to complete the task. Likely it was granted to other follower.
+	-- from: @leader
+	-- to: @follower
 	open_denied = 0x07,
 }
 M.name = {}
@@ -34,15 +55,15 @@ end
 function M.pack_pong_frame(ts)
 	return frame.pack(M.id.pong, encode.u64(ts))
 end
-function M.pack_open_task_frame(id, path, line, col)
-	return frame.pack(
-		M.id.open_task,
-		encode.u32(id) .. encode.pack_str_u16(path) .. encode.u32(line or 1) .. encode.u32(col or 1)
-	)
-end
 function M.pack_open_request_frame(id, path, line, col)
 	return frame.pack(
 		M.id.open_request,
+		encode.u32(id) .. encode.pack_str_u16(path) .. encode.u32(line or 1) .. encode.u32(col or 1)
+	)
+end
+function M.pack_open_task_frame(id, path, line, col)
+	return frame.pack(
+		M.id.open_task,
 		encode.u32(id) .. encode.pack_str_u16(path) .. encode.u32(line or 1) .. encode.u32(col or 1)
 	)
 end

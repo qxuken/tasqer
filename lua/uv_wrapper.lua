@@ -1,5 +1,5 @@
-local G = require("lib.G")
-local logger = require("lib.logger")
+local G = require("lua.G")
+local logger = require("lua.logger")
 
 local M = { _internal_uv = nil }
 function M.init(uv)

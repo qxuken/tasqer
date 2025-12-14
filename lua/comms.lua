@@ -1,7 +1,7 @@
-local G = require("lib.G")
-local logger = require("lib.logger")
-local uv = require("lib.uv_wrapper")
-local command = require("lib.command.mod")
+local G = require("lua.G")
+local logger = require("lua.logger")
+local uv = require("lua.uv_wrapper")
+local command = require("lua.command.mod")
 
 local M = {}
 

@@ -1,5 +1,5 @@
-local logger = require("lib.logger")
-local encode = require("lib.command.encode")
+local logger = require("lua.logger")
+local encode = require("lua.command.encode")
 
 -- Protocol constants
 local MAGIC = "EO_QMGC25"

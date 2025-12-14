@@ -1,6 +1,6 @@
-local uv = require("lib.uv_wrapper")
-local logger = require("lib.logger")
-local comms = require("lib.comms")
+local uv = require("lua.uv_wrapper")
+local logger = require("lua.logger")
+local comms = require("lua.comms")
 
 logger.set_printer(function(level, message)
 	vim.notify(message, level)
