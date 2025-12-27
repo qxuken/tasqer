@@ -1,7 +1,7 @@
 local G = require("lua.G")
 local logger = require("lua.logger")
 local uv = require("lua.uv_wrapper")
-local command = require("lua.command.mod")
+local message = require("lua.message.mod")
 
 local M = {}
 
@@ -65,7 +65,7 @@ local function new_leader_role(socket)
 		role = M.role.leader,
 		socket = socket,
 		peers = {},
-		open_tasks = {},
+		tasks = {},
 	}
 end
 
@@ -78,7 +78,7 @@ local function send_frame_to_peer(port, frame)
 	end)
 end
 
-local function on_open_task(payload)
+local function on_task_dispatch(payload)
 	uv.fstat(payload.path, function(err, stat)
 		if not err and stat.type == "file" then
 			logger.info("Openning" .. payload.path)
@@ -91,13 +91,13 @@ end
 
 local function on_ping(port)
 	reset_peer_timer(port)
-	send_frame_to_peer(port, command.pack_pong_frame(uv.now()))
+	send_frame_to_peer(port, message.pack_pong_frame(uv.now()))
 end
 
 local function on_leader_command(cmd_id, payload, port)
-	if cmd_id == command.id.open_task then
-		on_open_task(payload)
-	elseif cmd_id == command.id.ping then
+	if cmd_id == message.type.task_dispatch then
+		on_task_dispatch(payload)
+	elseif cmd_id == message.type.ping then
 		on_ping(port)
 	end
 end
@@ -117,12 +117,12 @@ local function try_init_leader()
 	logger.debug("try_init_leader")
 	local socket, err, code = uv.bind_as_server(uv.recv_buf(function(buf, port)
 		assert(buf ~= nil, "recv_msg callback with empty data")
-		local cmd_id, payload, err = command.unpack_frame(buf)
+		local cmd_id, payload, err = message.unpack_frame(buf)
 		if err ~= nil then
 			logger.warn("recv_msg -> [err] " .. err)
 			return
 		end
-		command.debug_log_cmd(cmd_id, payload)
+		message.debug_log_cmd(cmd_id, payload)
 		on_leader_command(cmd_id, payload, port)
 	end, function(err)
 		if err ~= nil then
@@ -139,12 +139,12 @@ end
 local function try_init_follower()
 	logger.debug("try_init_follower")
 	local socket, err, code = uv.bind_as_client(uv.recv_buf(function(buf, port)
-		local cmd_id, payload, err = command.unpack_frame(buf)
+		local cmd_id, payload, err = message.unpack_frame(buf)
 		if err ~= nil or port ~= G.PORT then
 			logger.debug("recv_msg -> [err] " .. err)
 			return
 		end
-		command.debug_log_cmd(cmd_id, payload)
+		message.debug_log_cmd(cmd_id, payload)
 		on_follower_command(cmd_id, payload)
 	end, function(err)
 		if err ~= nil then
@@ -156,7 +156,7 @@ local function try_init_follower()
 	end
 	local interval_ms = HEARTBEAT_INTERVAL + math.random(HEARTBEAT_RANGE_FROM, HEARTBEAT_RANGE_TO)
 	local timer = uv.set_interval(interval_ms, function()
-		G.role.socket:send(command.pack_ping_frame(uv.now()), nil, nil, function(send_err)
+		G.role.socket:send(message.pack_ping_frame(uv.now()), nil, nil, function(send_err)
 			if send_err ~= nil then
 				logger.debug(send_err)
 			end
@@ -190,14 +190,14 @@ end
 -- Capabilities & Roles -------------------------------------------------------
 local role_capabilities = {
 	leader = {
-		[command.id.pong] = true,
-		[command.id.open_request] = true,
-		[command.id.open_granted] = true,
-		[command.id.open_denied] = true,
+		[message.type.pong] = true,
+		[message.type.task_request] = true,
+		[message.type.task_granted] = true,
+		[message.type.task_denied] = true,
 	},
 	follower = {
-		[command.id.ping] = true,
-		[command.id.open_possible] = true,
+		[message.type.ping] = true,
+		[message.type.task_capable] = true,
 	},
 }
 
