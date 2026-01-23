@@ -462,8 +462,7 @@ end
 --- Follower: Handle pong message from leader (heartbeat response)
 --- @param data PingPongPayload The decoded pong payload
 local function follower_on_pong(data)
-	local latency = uv.now() - data.ts
-	logger.debug(string.format("Pong received, latency=%dms", latency))
+	logger.debug(string.format("Pong received, latency=%dms", math.abs(uv.now() - data.ts)))
 end
 
 --- Route incoming commands to appropriate follower handlers
