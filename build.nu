@@ -1,6 +1,6 @@
 const ubuntu_libs = [./lib/ubuntu/libluajit.a ./lib/ubuntu/libluv.a ./lib/ubuntu/libuv.a]
 const posix_deps = [-lm]
-const windows_libs = [./lib/windows/libluajit.lib ./lib/windows/luv.lib ./lib/windows/libuv.lib ./lib/windows/luajit.lib]
+const windows_libs = [./lib/windows/luv.lib ./lib/windows/libuv.lib ./lib/windows/luajit.lib]
 const windows_uv_deps = [-lws2_32 -liphlpapi -ladvapi32 -luser32 -lshell32 -lole32 -ldbghelp -luserenv]
 
 const out_dir = (path self . | path join build)
