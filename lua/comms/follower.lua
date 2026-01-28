@@ -116,10 +116,13 @@ end
 --- Follower: Handle pong message from leader (heartbeat response)
 --- @param data PingPongPayload The decoded pong payload
 local function follower_on_pong(data)
-	local now = uv.now()
-	G.role.last_pong_time = now
-	-- TODO: compare with last pong instead of diffing now
-	logger.debug("Pong received, latency=" .. math.abs(now - data.ts) .. "ms")
+	local prev_ts = G.role.last_pong_time
+	G.role.last_pong_time = uv.now()
+	local diff = 0
+	if prev_ts ~= nil then
+		diff = G.role.last_pong_time - prev_ts
+	end
+	logger.debug("Pong received, time_from_last=" .. diff .. "ms, leader_ts=" .. data.ts)
 end
 
 --- Route incoming commands to appropriate follower handlers
