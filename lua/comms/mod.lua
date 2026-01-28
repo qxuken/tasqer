@@ -41,13 +41,12 @@ function M.cleanup_role_and_shutdown_socket()
 		G.role = new_candidate_role()
 		return true
 	end
-
+	local role = G.role
 	if G.role.id == constants.role.transition then
 		return false
 	end
-	local role = G.role
-	G.role = new_transition_role()
 
+	G.role = new_transition_role()
 	if role.id == constants.role.candidate then
 		return true
 	end
@@ -56,7 +55,7 @@ function M.cleanup_role_and_shutdown_socket()
 	if role.id == constants.role.leader then
 		---@diagnostic disable-next-line: param-type-mismatch
 		leader.cleanup_role(role)
-	elseif G.role.id == constants.role.follower then
+	elseif role.id == constants.role.follower then
 		---@diagnostic disable-next-line: param-type-mismatch
 		follower.cleanup_role(role)
 	end

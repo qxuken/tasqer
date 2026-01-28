@@ -55,7 +55,7 @@ local function follower_on_task_dispatch(data)
 		return
 	end
 
-	logger.debug(string.format("Task[%d] dispatch received, type=%d", task_id, type_id))
+	logger.debug("Task[" .. task_id .. "] dispatch received, type=" .. type_id)
 
 	G.role.tasks[task_id] = {
 		type_id = type_id,
@@ -66,10 +66,10 @@ local function follower_on_task_dispatch(data)
 	task_module.can_execute(payload, function(capable)
 		if capable then
 			-- Store task locally in case we get granted
-			logger.debug(string.format("Task[%d] sending capable response", task_id))
+			logger.debug("Task[" .. task_id .. "] sending capable response")
 			send_to_leader(message.pack_task_capable_frame(task_id))
 		else
-			logger.debug(string.format("Task[%d] not capable, sending response", task_id))
+			logger.debug("Task[" .. task_id .. "] not capable, sending response")
 			send_to_leader(message.pack_task_not_capable_frame(task_id))
 			G.role.tasks[task_id] = nil
 		end
@@ -83,12 +83,12 @@ local function follower_on_task_granted(data)
 	local task = G.role.tasks[task_id]
 
 	if not task then
-		logger.warn(string.format("Task[%d] granted but not found locally", task_id))
+		logger.warn("Task[" .. task_id .. "] granted but not found locally")
 		return
 	end
 
 	if task.state ~= constants.task_state.pending then
-		logger.warn(string.format("Task[%d] granted but state is not pending: %s", task_id, task.state))
+		logger.warn("Task[" .. task_id .. "] granted but state is not pending: " .. task.state)
 		return
 	end
 
@@ -98,7 +98,7 @@ local function follower_on_task_granted(data)
 		return
 	end
 
-	logger.info(string.format("Task[%d] granted, executing", task_id))
+	logger.info("Task[" .. task_id .. "] granted, executing")
 	task.state = constants.task_state.granted
 	task_module.execute(task.payload)
 	task.state = constants.task_state.completed
@@ -109,7 +109,7 @@ end
 --- @param data TaskIdPayload The decoded task denied payload
 local function follower_on_task_denied(data)
 	local task_id = data.id
-	logger.debug(string.format("Task[%d] denied", task_id))
+	logger.debug("Task[" .. task_id .. "] denied")
 	G.role.tasks[task_id] = nil
 end
 
@@ -119,7 +119,7 @@ local function follower_on_pong(data)
 	local now = uv.now()
 	G.role.last_pong_time = now
 	-- TODO: compare with last pong instead of diffing now
-	logger.debug(string.format("Pong received, latency=%dms", math.abs(now - data.ts)))
+	logger.debug("Pong received, latency=" .. math.abs(now - data.ts) .. "ms")
 end
 
 --- Route incoming commands to appropriate follower handlers
@@ -136,8 +136,6 @@ local function on_command(cmd_id, payload)
 		follower_on_task_denied(payload)
 	end
 end
-
---- FIX: duplicating connections
 
 --- Attempt to initialize as follower by connecting to the leader
 --- @param on_err function function that triggers restart
@@ -165,8 +163,8 @@ function M.try_init(on_err)
 		+ math.random(constants.HEARTBEAT_RANGE_FROM, constants.HEARTBEAT_RANGE_TO)
 	local timer = uv.set_interval(interval_ms, function()
 		local now = uv.now()
-		if G.role.last_pong_time ~= nil and (now - G.role.last_pong_time) > interval_ms then
-			logger.debug("Leader timeout")
+		if G.role.last_pong_time ~= nil and (now - G.role.last_pong_time) > constants.HEARTBEAT_TIMEOUT then
+			logger.debug("Leader timeout: " .. (now - G.role.last_pong_time))
 			on_err()
 		else
 			G.role.socket:send(message.pack_ping_frame(now), nil, nil, function(send_err)

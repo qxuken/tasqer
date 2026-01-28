@@ -132,7 +132,7 @@ local function leader_on_task_request(data, requester_port)
 	end
 
 	logger.debug(
-		string.format("Task[%d] request received from port %s, type=%d", task_id, tostring(requester_port), type_id)
+		"Task[" .. task_id .. "] request received from port " .. tostring(requester_port) .. ", type=" .. type_id
 	)
 
 	G.role.tasks[task_id] = {
@@ -156,7 +156,7 @@ local function leader_on_task_request(data, requester_port)
 		end
 
 		if capable then
-			logger.info(string.format("Task[%d] executing locally (leader capable)", task_id))
+			logger.info("Task[" .. task_id .. "] executing locally (leader capable)")
 			task_module.execute(payload)
 			task.state = constants.task_state.completed
 			-- Send completed to requester
@@ -165,7 +165,7 @@ local function leader_on_task_request(data, requester_port)
 			end
 			cleanup_task(task_id)
 		else
-			logger.debug(string.format("Task[%d] dispatching to followers", task_id))
+			logger.debug("Task[" .. task_id .. "] dispatching to followers")
 			task.state = constants.task_state.dispatched
 
 			-- Set up dispatch timeout timer
@@ -174,7 +174,7 @@ local function leader_on_task_request(data, requester_port)
 				if not t or t.state ~= constants.task_state.dispatched then
 					return
 				end
-				logger.warn(string.format("Task[%d] dispatch timeout, no capable followers", task_id))
+				logger.warn("Task[" .. task_id .. "] dispatch timeout, no capable followers")
 				if t.requester_port then
 					send_frame_to_peer(t.requester_port, message.pack_task_failed_frame(task_id))
 				end
@@ -185,7 +185,7 @@ local function leader_on_task_request(data, requester_port)
 			task.dispatched_count =
 				broadcast_to_peers(message.pack_task_dispatch_frame(task_id, type_id, raw_data), task.requester_port)
 			if task.dispatched_count == 0 then
-				logger.debug(string.format("Task[%d] no peers available to dispatch", task_id))
+				logger.debug("Task[" .. task_id .. "] no peers available to dispatch")
 				cleanup_task(task_id)
 				if task.requester_port then
 					send_frame_to_peer(task.requester_port, message.pack_task_failed_frame(task_id))
@@ -204,19 +204,19 @@ local function leader_on_task_capable(data, port)
 	local task = G.role.tasks[task_id]
 
 	if not task then
-		logger.debug(string.format("Task[%d] capable from port %d - task not found", task_id, port))
+		logger.debug("Task[" .. task_id .. "] capable from port " .. port .. " - task not found")
 		send_frame_to_peer(port, message.pack_task_denied_frame(task_id))
 		return
 	end
 
 	if task.state ~= constants.task_state.dispatched then
-		logger.debug(string.format("Task[%d] capable from port %d - wrong state: %s", task_id, port, task.state))
+		logger.debug("Task[" .. task_id .. "] capable from port " .. port .. " - wrong state: " .. task.state)
 		send_frame_to_peer(port, message.pack_task_denied_frame(task_id))
 		return
 	end
 
 	-- First capable peer gets the task
-	logger.info(string.format("Task[%d] granting to port %d", task_id, port))
+	logger.info("Task[" .. task_id .. "] granting to port " .. port)
 	task.state = constants.task_state.granted
 	task.granted_peer = port
 	table.insert(task.capable_peers, port)
@@ -245,30 +245,32 @@ local function leader_on_task_not_capable(data, port)
 	local task = G.role.tasks[task_id]
 
 	if not task then
-		logger.debug(string.format("Task[%d] not_capable from port %d - task not found", task_id, port))
+		logger.debug("Task[" .. task_id .. "] not_capable from port " .. port .. " - task not found")
 		return
 	end
 
 	if task.state ~= constants.task_state.dispatched then
-		logger.debug(string.format("Task[%d] not_capable from port %d - wrong state: %s", task_id, port, task.state))
+		logger.debug("Task[" .. task_id .. "] not_capable from port " .. port .. " - wrong state: " .. task.state)
 		return
 	end
 
 	-- Increment not_capable count
 	task.not_capable_count = task.not_capable_count + 1
 	logger.debug(
-		string.format(
-			"Task[%d] not_capable from port %d (%d/%d)",
-			task_id,
-			port,
-			task.not_capable_count,
-			task.dispatched_count
-		)
+		"Task["
+			.. task_id
+			.. "] not_capable from port "
+			.. port
+			.. " ("
+			.. task.not_capable_count
+			.. "/"
+			.. task.dispatched_count
+			.. ")"
 	)
 
 	-- If all dispatched peers responded not_capable, fail the task
 	if task.not_capable_count >= task.dispatched_count then
-		logger.warn(string.format("Task[%d] all %d followers not capable", task_id, task.dispatched_count))
+		logger.warn("Task[" .. task_id .. "] all " .. task.dispatched_count .. " followers not capable")
 		if task.requester_port then
 			send_frame_to_peer(task.requester_port, message.pack_task_failed_frame(task_id))
 		end
