@@ -19,6 +19,7 @@ luv.signal_start(sigint, "sigint", function(signal)
 end)
 
 -- Setup task registry and initialize communication
+math.randomseed()
 tasks.setup()
 comms.run_comms()
 -- Start the event loop
