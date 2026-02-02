@@ -13,7 +13,7 @@ local M = {}
 --- Create a new leader role state
 --- @param socket uv_udp_t The bound UDP socket
 --- @return LeaderRole role The new leader role state
-local function new_leader_role(socket)
+local function new_role(socket)
 	return {
 		id = constants.role.leader,
 		role = constants.role.leader,
@@ -103,7 +103,7 @@ end
 --- Leader: Handle incoming task_request message
 --- @param data TaskRequestPayload The decoded task request payload
 --- @param requester_port integer? The port of the requester
-local function leader_on_task_request(data, requester_port)
+local function on_task_request(data, requester_port)
 	local task_id = next_task_id()
 	local type_id = data.type_id
 	local raw_data = data.data
@@ -199,7 +199,7 @@ end
 --- Leader: Handle task_capable response from a follower
 --- @param data TaskIdPayload The decoded task capable payload
 --- @param port integer The responding follower's port
-local function leader_on_task_capable(data, port)
+local function on_task_capable(data, port)
 	local task_id = data.id
 	local task = G.role.tasks[task_id]
 
@@ -240,7 +240,7 @@ end
 --- Leader: Handle task_not_capable response from a follower
 --- @param data TaskIdPayload The decoded task not capable payload
 --- @param port integer The responding follower's port
-local function leader_on_task_not_capable(data, port)
+local function on_task_not_capable(data, port)
 	local task_id = data.id
 	local task = G.role.tasks[task_id]
 
@@ -293,11 +293,11 @@ local function on_command(cmd_id, payload, port)
 	if cmd_id == message.type.ping then
 		on_ping(port)
 	elseif cmd_id == message.type.task_request then
-		leader_on_task_request(payload, port)
+		on_task_request(payload, port)
 	elseif cmd_id == message.type.task_capable then
-		leader_on_task_capable(payload, port)
+		on_task_capable(payload, port)
 	elseif cmd_id == message.type.task_not_capable then
-		leader_on_task_not_capable(payload, port)
+		on_task_not_capable(payload, port)
 	end
 end
 
@@ -324,7 +324,7 @@ function M.try_init(on_err)
 	if err ~= nil or socket == nil then
 		return err, code
 	end
-	G.role = new_leader_role(socket)
+	G.role = new_role(socket)
 	return nil, nil
 end
 

@@ -14,7 +14,7 @@ local M = {}
 --- @param socket uv_udp_t The bound UDP socket
 --- @param timer uv_timer_t The heartbeat timer
 --- @return FollowerRole role The new follower role state
-local function new_follower_role(socket, timer)
+local function new_role(socket, timer)
 	return {
 		id = constants.role.follower,
 		role = constants.role.follower,
@@ -37,7 +37,7 @@ end
 
 --- Follower: Handle task_dispatch message from leader
 --- @param data TaskRequestPayload The decoded task dispatch payload
-local function follower_on_task_dispatch(data)
+local function on_task_dispatch(data)
 	local task_id = data.id
 	local type_id = data.type_id
 	local raw_data = data.data
@@ -78,7 +78,7 @@ end
 
 --- Follower: Handle task_granted message from leader
 --- @param data TaskIdPayload The decoded task granted payload
-local function follower_on_task_granted(data)
+local function on_task_granted(data)
 	local task_id = data.id
 	local task = G.role.tasks[task_id]
 
@@ -107,7 +107,7 @@ end
 
 --- Follower: Handle task_denied message from leader
 --- @param data TaskIdPayload The decoded task denied payload
-local function follower_on_task_denied(data)
+local function on_task_denied(data)
 	local task_id = data.id
 	logger.debug("Task[" .. task_id .. "] denied")
 	G.role.tasks[task_id] = nil
@@ -115,7 +115,7 @@ end
 
 --- Follower: Handle pong message from leader (heartbeat response)
 --- @param data PingPongPayload The decoded pong payload
-local function follower_on_pong(data)
+local function on_pong(data)
 	local prev_ts = G.role.last_pong_time
 	G.role.last_pong_time = uv.now()
 	local diff = 0
@@ -130,13 +130,13 @@ end
 --- @param payload table The decoded message payload
 local function on_command(cmd_id, payload)
 	if cmd_id == message.type.pong then
-		follower_on_pong(payload)
+		on_pong(payload)
 	elseif cmd_id == message.type.task_dispatch then
-		follower_on_task_dispatch(payload)
+		on_task_dispatch(payload)
 	elseif cmd_id == message.type.task_granted then
-		follower_on_task_granted(payload)
+		on_task_granted(payload)
 	elseif cmd_id == message.type.task_denied then
-		follower_on_task_denied(payload)
+		on_task_denied(payload)
 	end
 end
 
@@ -179,7 +179,7 @@ function M.try_init(on_err)
 		end)
 	end)
 	logger.debug("sendings pings per " .. interval_ms .. "ms")
-	G.role = new_follower_role(socket, timer)
+	G.role = new_role(socket, timer)
 	return nil, nil
 end
 
