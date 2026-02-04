@@ -31,6 +31,21 @@ preload_library :: proc(state: ^State, name: cstring, open_proc: CFunction) {
 	pop(state, 2)
 }
 
+set_resolution_path :: proc(state: ^State, new_value: cstring, field: cstring = "path") {
+	getglobal(state, "package")
+	getfield(state, -1, field)
+	old_value_len: c.size_t; old_value := tolstring(state, -1, &old_value_len)
+	pop(state, 1)
+	if old_value != nil && old_value_len > 0 {
+		pushfstring(state, "%s;%s", new_value, old_value)
+	} else {
+		pushstring(state, new_value)
+	}
+	setfield(state, -2, field)
+	pop(state, 1)
+}
+
+
 setup_args :: proc(state: ^State) {
 	newtable(state)
 	for arg, i in runtime.args__ {

@@ -3,12 +3,21 @@ package main
 import "core:fmt"
 import "core:mem"
 import "core:os"
+import "core:path/filepath"
 import "deps/luajit"
 import "deps/luv"
 import "deps/uv"
 _ :: mem
 
-entry: cstring : "main.lua"
+entry :: "main.lua"
+
+get_lua_resolution_path :: proc() -> cstring {
+	dir := filepath.dir(os.args[0])
+	defer delete(dir)
+	res_src := transmute([]u8)filepath.join({dir, "?.lua0"})
+	res_src[len(res_src) - 1] = 0
+	return cast(cstring)(raw_data(res_src))
+}
 
 lua_run :: proc(src: cstring) {
 	_context := context
@@ -16,11 +25,16 @@ lua_run :: proc(src: cstring) {
 	ensure(state != nil)
 	defer luajit.close(state)
 
+	luajit.setup_args(state)
 	luajit.L_openlibs(state)
 	luajit.preload_library(state, "luv", luv.luaopen_luv)
-	luajit.setup_args(state)
+	resolution_path := get_lua_resolution_path()
+	defer delete(resolution_path)
+	luajit.set_resolution_path(state, resolution_path)
 
-	if (luajit.L_dofile(state, src) != 0) {
+	luajit.getglobal(state, "require")
+	luajit.pushstring(state, "main")
+	if (luajit.pcall(state, 1, 1, 0) != 0) {
 		fmt.println(luajit.tostring(state, -1))
 		luajit.pop(state, 1)
 		os.exit(1)

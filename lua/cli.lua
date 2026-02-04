@@ -46,7 +46,7 @@ end
 --- @return integer type_id The parsed type_id
 --- @return table? payload The parsed payload
 function M.parse_args()
-	if not arg or #arg < 1 then
+	if not arg or #arg < 2 then
 		print_usage()
 		os.exit(1)
 	end
