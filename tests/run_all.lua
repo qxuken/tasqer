@@ -1,6 +1,9 @@
 --- Test runner that executes all test files and reports aggregate results.
---- Usage: luajit lua/tests/run_all.lua
+--- Usage: lua tests/run_all.lua
 ---   (run from the project root directory)
+
+-- Add lua/ to package path so require("tasqer.xxx") resolves to lua/tasqer/xxx.lua
+package.path = "./lua/?.lua;./lua/?/init.lua;" .. package.path
 
 io.write("=" .. string.rep("=", 59) .. "\n")
 io.write("  Running test suite\n")

@@ -263,7 +263,7 @@ _internal_uv = {
 
 --- Install mock into the uv_wrapper module
 function M.install()
-	local uv = require("lua.uv_wrapper")
+	local uv = require("tasqer.uv_wrapper")
 	uv.init(_internal_uv)
 end
 

@@ -1,12 +1,12 @@
 --- Tests for follower role behavior.
 --- Covers: dispatch handling, capability response, execution, denied cleanup.
 
-local G = require("lua.G")
+local G = require("tasqer.G")
 local h = require("tests.test_helpers")
 local mock_uv = require("tests.mock_uv")
 local mock_tasks = require("tests.mock_tasks")
-local message = require("lua.message.mod")
-local c = require("lua.comms.constants")
+local message = require("tasqer.message.mod")
+local c = require("tasqer.comms.constants")
 
 -- ============================================================
 -- Scenario: Follower receives dispatch -> capable -> granted -> executes

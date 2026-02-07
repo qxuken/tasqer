@@ -2,8 +2,8 @@
 --- Provides a controllable task that can be registered in the task registry.
 --- Allows tests to set can_execute and execute results per-call.
 
-local G = require("lua.G")
-local tasks = require("lua.tasks.mod")
+local G = require("tasqer.G")
+local tasks = require("tasqer.tasks.mod")
 
 local M = {}
 
@@ -35,14 +35,14 @@ function M.register()
 		id = M.TASK_TYPE_ID,
 		encode = function(payload)
 			-- Simple encode: just the path as u16-prefixed string + row u32 + col u32
-			local encode_mod = require("lua.message.encode")
+			local encode_mod = require("tasqer.message.encode")
 			local path_data = encode_mod.pack_str_u16(payload.path or "test.txt")
 			local row_data = encode_mod.u32(payload.row or 1)
 			local col_data = encode_mod.u32(payload.col or 1)
 			return table.concat({ path_data, row_data, col_data }), nil
 		end,
 		decode = function(data)
-			local encode_mod = require("lua.message.encode")
+			local encode_mod = require("tasqer.message.encode")
 			local path, row, col, off, err
 			off = 1
 			path, off, err = encode_mod.unpack_str_u16(data, off)
@@ -132,7 +132,7 @@ end
 
 --- Encode a payload to raw data (for building task_request / task_dispatch frames)
 function M.encode_payload(payload)
-	local encode_mod = require("lua.message.encode")
+	local encode_mod = require("tasqer.message.encode")
 	payload = payload or M.make_payload()
 	local path_data = encode_mod.pack_str_u16(payload.path)
 	local row_data = encode_mod.u32(payload.row)

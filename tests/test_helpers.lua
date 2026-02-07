@@ -1,11 +1,11 @@
 --- Minimal self-contained test runner and assertion helpers.
 --- No external dependencies required.
 
-local G = require("lua.G")
+local G = require("tasqer.G")
 local mock_uv = require("tests.mock_uv")
 local mock_tasks = require("tests.mock_tasks")
-local message = require("lua.message.mod")
-local c = require("lua.comms.constants")
+local message = require("tasqer.message.mod")
+local c = require("tasqer.comms.constants")
 
 local M = {}
 
@@ -98,7 +98,7 @@ end
 --- Set up G.role as a leader via the real try_init path
 --- This wires up the actual recv callback chain so simulate_recv works
 function M.setup_leader()
-	local leader = require("lua.comms.leader")
+	local leader = require("tasqer.comms.leader")
 	local err = leader.try_init(function() end)
 	assert(not err, "Failed to init leader: " .. tostring(err))
 	return G.role.socket
@@ -106,7 +106,7 @@ end
 
 --- Add a fake peer to the leader's peer list
 function M.add_peer(port)
-	local uv = require("lua.uv_wrapper")
+	local uv = require("tasqer.uv_wrapper")
 	G.role.peers[port] = uv.set_timeout(c.HEARTBEAT_TIMEOUT, function()
 		G.role.peers[port] = nil
 	end)
@@ -167,7 +167,7 @@ end
 function M.setup_follower()
 	-- Leader must be "already bound" so follower bind succeeds on a different port
 	-- The mock always succeeds for client bind, so this just works
-	local follower = require("lua.comms.follower")
+	local follower = require("tasqer.comms.follower")
 	local err = follower.try_init(function() end)
 	assert(not err, "Failed to init follower: " .. tostring(err))
 	return G.role.socket

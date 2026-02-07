@@ -2,9 +2,9 @@
 --- Handles message types for leader-follower communication and task dispatching.
 --- @class MessageModule
 
-local logger = require("lua.logger")
-local frame = require("lua.message.frame")
-local encode = require("lua.message.encode")
+local logger = require("tasqer.logger")
+local frame = require("tasqer.message.frame")
+local encode = require("tasqer.message.encode")
 
 --- @class MessageModule
 local M = {}

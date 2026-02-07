@@ -2,8 +2,8 @@
 --- Provides a unified interface for UDP sockets, timers, and file operations.
 --- @class UvWrapperModule
 
-local G = require("lua.G")
-local logger = require("lua.logger")
+local G = require("tasqer.G")
+local logger = require("tasqer.logger")
 
 --- @class uv_udp_t UDP socket handle
 --- @field bind fun(self: uv_udp_t, host: string, port: integer): integer, string?, integer?

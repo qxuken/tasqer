@@ -2,7 +2,7 @@
 --- Implements the TaskModule interface for file opening operations.
 --- @class OpenFileTaskModule : TaskModule
 
-local encode = require("lua.message.encode")
+local encode = require("tasqer.message.encode")
 
 --- @class OpenFilePayload
 --- @field path string The file path to open

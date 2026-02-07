@@ -2,9 +2,9 @@
 --- Covers frame packing, message types, and openfile payload serialization.
 
 local h = require("tests.test_helpers")
-local message = require("lua.message.mod")
-local frame = require("lua.message.frame")
-local encode = require("lua.message.encode")
+local message = require("tasqer.message.mod")
+local frame = require("tasqer.message.frame")
+local encode = require("tasqer.message.encode")
 
 h.suite("message/encode")
 
@@ -169,7 +169,7 @@ end)
 h.suite("tasks/openfile")
 
 h.test("openfile encode/decode round-trip", function()
-	local openfile = require("lua.tasks.openfile")
+	local openfile = require("tasqer.tasks.openfile")
 	local payload = { path = "/home/user/test.lua", row = 42, col = 7 }
 	local encoded, err = openfile.encode(payload)
 	h.assert_nil(err)
@@ -182,7 +182,7 @@ h.test("openfile encode/decode round-trip", function()
 end)
 
 h.test("openfile decode rejects non-string", function()
-	local openfile = require("lua.tasks.openfile")
+	local openfile = require("tasqer.tasks.openfile")
 	local _, err = openfile.decode(42)
 	h.assert_not_nil(err)
 end)
@@ -190,7 +190,7 @@ end)
 h.test("openfile default can_execute returns false", function()
 	-- Reload a fresh openfile module to test defaults
 	-- (mock_tasks may have overridden it via register)
-	local openfile = require("lua.tasks.openfile")
+	local openfile = require("tasqer.tasks.openfile")
 	-- Save and restore
 	local orig_can = openfile.can_execute
 	-- Reset to default

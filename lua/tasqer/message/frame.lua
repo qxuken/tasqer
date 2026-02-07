@@ -2,8 +2,8 @@
 --- Frame format: MAGIC(9) | VERSION(u8) | MESSAGE_TYPE(u8) | LENGTH(u16) | DATA
 --- @class FrameModule
 
-local logger = require("lua.logger")
-local encode = require("lua.message.encode")
+local logger = require("tasqer.logger")
+local encode = require("tasqer.message.encode")
 
 -- Protocol constants
 --- @type string Magic bytes for frame identification

@@ -1,10 +1,10 @@
 local luv = require("luv")
-local uv = require("lua.uv_wrapper")
-local tasks = require("lua.tasks.mod")
-local comms = require("lua.comms.mod")
-local constants = require("lua.comms.constants")
-local logger = require("lua.logger")
-local cli = require("lua.cli")
+local uv = require("tasqer.uv_wrapper")
+local tasks = require("tasqer.tasks.mod")
+local comms = require("tasqer.comms.mod")
+local constants = require("tasqer.comms.constants")
+local logger = require("tasqer.logger")
+local cli = require("tasqer.cli")
 
 math.randomseed(os.time())
 
@@ -15,7 +15,7 @@ luv.signal_start(sigint, "sigint", function()
 	luv.stop()
 end)
 
-tasks.register(require("lua.tasks.openfile").setup(function(payload, callback)
+tasks.register(require("tasqer.tasks.openfile").setup(function(payload, callback)
 	uv.fstat(payload.path, function(err, stat)
 		local capable = not err and stat and stat.type == "file"
 		if not capable then

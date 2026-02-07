@@ -1,12 +1,12 @@
 --- Tests for leader role task handling.
 --- Covers: local execution, follower dispatch, failover, edge cases.
 
-local G = require("lua.G")
+local G = require("tasqer.G")
 local h = require("tests.test_helpers")
 local mock_uv = require("tests.mock_uv")
 local mock_tasks = require("tests.mock_tasks")
-local message = require("lua.message.mod")
-local c = require("lua.comms.constants")
+local message = require("tasqer.message.mod")
+local c = require("tasqer.comms.constants")
 
 local REQUESTER = 50001
 local FOLLOWER_A = 50010

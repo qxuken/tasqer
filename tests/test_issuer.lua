@@ -2,13 +2,13 @@
 --- The issuer connects to a leader, dispatches one task, and handles results.
 --- Covers: happy path, failure fallback, timeout fallback, local execution.
 
-local G = require("lua.G")
+local G = require("tasqer.G")
 local h = require("tests.test_helpers")
 local mock_uv = require("tests.mock_uv")
 local mock_tasks = require("tests.mock_tasks")
-local message = require("lua.message.mod")
-local c = require("lua.comms.constants")
-local issuer = require("lua.comms.issuer")
+local message = require("tasqer.message.mod")
+local c = require("tasqer.comms.constants")
+local issuer = require("tasqer.comms.issuer")
 
 --- Helper: set up issuer role via try_init
 --- @return table task The issuer task entry

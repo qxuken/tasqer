@@ -2,7 +2,7 @@
 --- Provides registration, lookup, and encoding/decoding of tasks.
 --- @class TasksModule
 
-local G = require("lua.G")
+local G = require("tasqer.G")
 
 --- @class TasksModule
 local M = {}

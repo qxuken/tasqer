@@ -2,6 +2,5 @@
 *.dSYM
 *.pdb
 
-edit_open.exe
-edit_open
-edit-open
+tasqer.exe
+tasqer

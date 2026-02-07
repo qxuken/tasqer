@@ -2,12 +2,12 @@
 --- Handles role election, task routing, and peer management.
 --- @class CommsModule
 
-local G = require("lua.G")
-local logger = require("lua.logger")
-local constants = require("lua.comms.constants")
-local leader = require("lua.comms.leader")
-local follower = require("lua.comms.follower")
-local issuer = require("lua.comms.issuer")
+local G = require("tasqer.G")
+local logger = require("tasqer.logger")
+local constants = require("tasqer.comms.constants")
+local leader = require("tasqer.comms.leader")
+local follower = require("tasqer.comms.follower")
+local issuer = require("tasqer.comms.issuer")
 
 --- @class CommsModule
 local M = {}

@@ -1,4 +1,4 @@
-local openfile = require("lua.tasks.openfile")
+local openfile = require("tasqer.tasks.openfile")
 
 local M = {}
 

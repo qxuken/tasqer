@@ -14,7 +14,7 @@ entry :: "main.lua"
 get_lua_resolution_path :: proc() -> cstring {
 	dir := filepath.dir(os.args[0])
 	defer delete(dir)
-	res_src := transmute([]u8)filepath.join({dir, "?.lua0"})
+	res_src := transmute([]u8)filepath.join({dir, "lua", "?.lua0"})
 	res_src[len(res_src) - 1] = 0
 	return cast(cstring)(raw_data(res_src))
 }

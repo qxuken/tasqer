@@ -1,12 +1,12 @@
 --- Follower role handlers and helpers.
 --- @class CommsFollower
 
-local G = require("lua.G")
-local uv = require("lua.uv_wrapper")
-local logger = require("lua.logger")
-local message = require("lua.message.mod")
-local tasks = require("lua.tasks.mod")
-local constants = require("lua.comms.constants")
+local G = require("tasqer.G")
+local uv = require("tasqer.uv_wrapper")
+local logger = require("tasqer.logger")
+local message = require("tasqer.message.mod")
+local tasks = require("tasqer.tasks.mod")
+local constants = require("tasqer.comms.constants")
 
 local M = {}
 

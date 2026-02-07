@@ -1,7 +1,7 @@
 --- Logging utility module with configurable log levels and output.
 --- @class LoggerModule
 
-local G = require("lua.G")
+local G = require("tasqer.G")
 
 --- @class LoggerModule
 local M = {}
