@@ -21,9 +21,6 @@ M.defaults = {
 	host = "127.0.0.1",
 	port = 48391,
 	log = function(level, message)
-		if level < G.log_level then
-			return
-		end
 		vim.notify(message, level, {
 			name = "tasqer",
 		})

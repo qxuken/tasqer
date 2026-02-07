@@ -36,6 +36,16 @@ function G.print(level, message)
 	end
 end
 
+--- Level gate for the G.print
+--- @param level LogLevel The log level
+--- @param message string The message to print
+function M.print(level, message)
+	if level < G.log_level then
+		return
+	end
+	G.print(level, message)
+end
+
 --- Set a custom printer function for log output
 --- @param p PrinterFunction The printer function to use
 function M.set_printer(p)
@@ -57,31 +67,31 @@ end
 --- Log a message at TRACE level
 --- @param message string The message to log
 function M.trace(message)
-	G.print(M.level.TRACE, message)
+	M.print(M.level.TRACE, message)
 end
 
 --- Log a message at DEBUG level
 --- @param message string The message to log
 function M.debug(message)
-	G.print(M.level.DEBUG, message)
+	M.print(M.level.DEBUG, message)
 end
 
 --- Log a message at INFO level
 --- @param message string The message to log
 function M.info(message)
-	G.print(M.level.INFO, message)
+	M.print(M.level.INFO, message)
 end
 
 --- Log a message at WARN level
 --- @param message string The message to log
 function M.warn(message)
-	G.print(M.level.WARN, message)
+	M.print(M.level.WARN, message)
 end
 
 --- Log a message at ERROR level
 --- @param message string The message to log
 function M.error(message)
-	G.print(M.level.ERROR, message)
+	M.print(M.level.ERROR, message)
 end
 
 --- Dump a table recursively at specified log level
@@ -95,17 +105,17 @@ function M.dump(level, tbl, indent, seen)
 	end
 	indent, seen = indent or "", seen or {}
 	if seen[tbl] then
-		G.print(level, indent .. "*RECURSION*")
+		M.print(level, indent .. "*RECURSION*")
 		return
 	end
 	seen[tbl] = true
 	for k, v in pairs(tbl) do
 		if type(v) == "table" then
-			G.print(level, ("%s[%s] = {"):format(indent, tostring(k)))
+			M.print(level, ("%s[%s] = {"):format(indent, tostring(k)))
 			M.dump(level, v, indent .. "  ", seen)
-			G.print(level, indent .. "}")
+			M.print(level, indent .. "}")
 		else
-			G.print(level, ("%s[%s] = %s"):format(indent, tostring(k), tostring(v)))
+			M.print(level, ("%s[%s] = %s"):format(indent, tostring(k), tostring(v)))
 		end
 	end
 end
