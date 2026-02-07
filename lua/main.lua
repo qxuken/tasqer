@@ -24,8 +24,18 @@ tasks.register(require("tasqer.tasks.openfile").setup(function(payload, callback
 		callback(capable)
 	end)
 end, function(payload, callback)
-	os.execute("wezterm cli spawn nvim " .. payload.path)
-	callback(true)
+	local cwd = luv.cwd()
+
+	local cursor = ""
+	if payload.row > 1 or payload.col > 1 then
+		local row = math.max(payload.row, 1)
+		local col = math.max(payload.col, 1)
+		cursor = string.format([[+"call cursor(%d,%d)" ]], row, col)
+	end
+
+	local cmd = "wezterm cli spawn --cwd " .. cwd .. " nvim " .. cursor .. payload.path
+	local res = os.execute(cmd)
+	callback(res)
 end))
 
 local type_id, payload = cli.parse_args()
