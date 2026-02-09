@@ -55,6 +55,11 @@ function M.start()
 	uv.shutdown(comms.shutdown)
 end
 
+--- Cleanup hook for lazy.nvim (called when plugin is disabled/unloaded).
+function M.deactivate()
+	comms.shutdown()
+end
+
 --- Convenience: register the openfile task with wezterm pane activation.
 --- Opens files in current Neovim instance, positions cursor, and
 --- activates the wezterm pane. Call after setup(), before start().
