@@ -262,12 +262,15 @@ def install-macos [install_path: string] {
 	mkdir $macos_dir
 
 	# Create the launcher script
-	let launcher = $macos_dir | path join $APP_NAME
-	let launcher_content = $'#!/bin/sh
-exec "($bin)" ($PROGRAM_COMMAND) "$1"
-'
-	$launcher_content | save -f $launcher
-	^chmod +x $launcher
+	let launcher_template_path = $BUILD_SCRIPT_LOCATION | path join macos_launcher main.m
+	let launcher_log_path = $macos_dir | path join app.log
+	let launcher_path = $macos_dir | path join $APP_NAME
+	print $"Compiling ($launcher_path)"
+	open $launcher_template_path
+		| str replace "<APP_BIN_PATH>" $bin
+		| str replace "<APP_COMMAND>" $PROGRAM_COMMAND
+		| str replace "<APP_LOG_PATH>" $launcher_log_path
+		| clang -x objective-c -fobjc-arc -framework Cocoa -o $launcher_path -
 
 	# Build CFBundleDocumentTypes plist entries
 	# Group extensions by UTType

@@ -16,24 +16,26 @@ M.level = {
 	ERROR = 4,
 }
 
+local LOG_NAME_LENGTH = 5
+local names = {}
+for level, val in pairs(M.level) do
+	local name = level
+	if #name < LOG_NAME_LENGTH then
+		name = (" "):rep(LOG_NAME_LENGTH - #name) .. name
+	end
+	names[val] = name
+end
+
 --- Default print function - outputs to stdout with level prefix
 --- @param level LogLevel The log level
 --- @param message string The message to print
 function G.print(level, message)
-	if level < G.log_level then
+	local level_name = names[level]
+	if level < G.log_level or not level_name then
 		return
 	end
-	if level == M.level.TRACE then
-		print("TRACE: " .. message)
-	elseif level == M.level.DEBUG then
-		print("DEBUG: " .. message)
-	elseif level == M.level.INFO then
-		print("INFO: " .. message)
-	elseif level == M.level.WARN then
-		print("WARN: " .. message)
-	elseif level == M.level.ERROR then
-		print("ERROR: " .. message)
-	end
+	local ts = os.time()
+	return io.write(ts, " - ", level_name, ": ", message, "\n")
 end
 
 --- Level gate for the G.print
@@ -43,7 +45,7 @@ function M.print(level, message)
 	if level < G.log_level then
 		return
 	end
-	G.print(level, message)
+	return G.print(level, message)
 end
 
 --- Set a custom printer function for log output
@@ -67,31 +69,31 @@ end
 --- Log a message at TRACE level
 --- @param message string The message to log
 function M.trace(message)
-	M.print(M.level.TRACE, message)
+	return M.print(M.level.TRACE, message)
 end
 
 --- Log a message at DEBUG level
 --- @param message string The message to log
 function M.debug(message)
-	M.print(M.level.DEBUG, message)
+	return M.print(M.level.DEBUG, message)
 end
 
 --- Log a message at INFO level
 --- @param message string The message to log
 function M.info(message)
-	M.print(M.level.INFO, message)
+	return M.print(M.level.INFO, message)
 end
 
 --- Log a message at WARN level
 --- @param message string The message to log
 function M.warn(message)
-	M.print(M.level.WARN, message)
+	return M.print(M.level.WARN, message)
 end
 
 --- Log a message at ERROR level
 --- @param message string The message to log
 function M.error(message)
-	M.print(M.level.ERROR, message)
+	return M.print(M.level.ERROR, message)
 end
 
 --- Dump a table recursively at specified log level
