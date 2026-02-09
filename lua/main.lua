@@ -25,7 +25,7 @@ tasks.register(require("tasqer.tasks.openfile").setup(function(payload, callback
 	end)
 end, function(payload, callback)
 	local exe = "wezterm"
-	if os.getenv("WSL_DISTRO_NAME") ~= nil then
+	if os.getenv("WSL_DISTRO_NAME") ~= nil or os.getenv("OS") == "Windows_NT" then
 		exe = "wezterm.exe"
 	end
 	local cwd = luv.cwd()
