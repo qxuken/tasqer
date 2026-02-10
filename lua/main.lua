@@ -28,18 +28,37 @@ end, function(payload, callback)
 	if os.getenv("WSL_DISTRO_NAME") ~= nil or os.getenv("OS") == "Windows_NT" then
 		exe = "wezterm.exe"
 	end
+	local args = { "start" }
 	local cwd = luv.cwd()
+	if cwd and cwd ~= "/" then
+		table.insert(args, "--cwd")
+		table.insert(args, cwd)
+	end
 
-	local cursor = ""
+	table.insert(args, "nvim")
 	if payload.row > 1 or payload.col > 1 then
 		local row = math.max(payload.row, 1)
 		local col = math.max(payload.col, 1)
-		cursor = string.format([[+"call cursor(%d,%d)" ]], row, col)
+		table.insert(args, string.format([[+"call cursor(%d,%d)"]], row, col))
 	end
+	table.insert(args, payload.path)
 
-	local cmd = exe .. " cli spawn --cwd " .. cwd .. " nvim " .. cursor .. payload.path
-	local res = os.execute(cmd)
-	callback(res)
+	logger.debug("Executing command: " .. exe .. " " .. table.concat(args, " "))
+	--- TODO: Focus window afteer app start
+	local handle, pid = luv.spawn(exe, {
+		args = args,
+		detached = true,
+		stdio = { nil, nil, nil }, -- ignore stdin/out/err
+	}, function(code, signal)
+		if code ~= 0 then
+			logger.error("Failed to execute command " .. code .. " " .. signal)
+		else
+			logger.info("Command executed successfully")
+		end
+	end)
+	handle:unref()
+	logger.debug("Command executed: " .. pid)
+	callback(true)
 end))
 
 local type_id, payload = cli.parse_args()
