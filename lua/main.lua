@@ -48,7 +48,7 @@ end, function(payload, callback)
 
 	local main_args = utils.tbl_extend(main_subcommand, args)
 	logger.debug("Executing command: " .. exe .. " " .. table.concat(main_args, " "))
-	local timeout = uv.set_timeout(10000, function()
+	local timeout = uv.set_timeout(3000, function()
 		logger.debug("Execution timeout reached")
 		callback(false)
 	end)
@@ -56,6 +56,7 @@ end, function(payload, callback)
 	luv.spawn(exe, {
 		args = main_args,
 		detached = false,
+		hide = true,
 		stdio = { nil, nil, nil },
 	}, function(main_code)
 		pcall(uv.clear_timer, timeout)
@@ -66,6 +67,7 @@ end, function(payload, callback)
 			local handle, pid = luv.spawn(exe, {
 				args = failback_args,
 				detached = true,
+				hide = true,
 				stdio = { nil, nil, nil },
 			}, function(fallback_code, signal)
 				if fallback_code ~= 0 then

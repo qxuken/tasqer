@@ -35,6 +35,8 @@ const FILE_TYPES = {
 	".css":  {mime: "text/css",           UTType: "public.css"},
 	".md":   {mime: "text/markdown",      UTType: "net.ia.markdown"},
 	".odin": {mime: "text/plain",         UTType: "public.source-code"},
+	".nu":   {mime: "text/plain",         UTType: "public.source-code"},
+	".sum":  {mime: "text/plain",         UTType: "public.source-code"},
 }
 
 const ENV_MARKER = $"# ($PROGRAM_NAME)-editor"
